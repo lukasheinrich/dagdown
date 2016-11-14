@@ -1,5 +1,7 @@
 first:
-  - busybox: echo ./hello {nevents} {outfile:>>}
+  - busybox: |
+      echo ./hello {nevents} {outfile:>>}
+      echo 'fine...'
   - {nevents: $init|nevents,  outfile: world}
 second:
   - busybox: echo ./hello {input} {outfile:>>}

@@ -23,24 +23,24 @@ def parse_parameters(minspec):
     return alldeps,full_parameters
 
 def make_simple_step(minspec):
-    environment,cmd = minspec[0].items()[0]
+    environment,script = minspec[0].items()[0]
     image_tag = environment.split(':')
     if(len(image_tag)==2):
         image,tag = image_tag
     else:
         image,tag = image_tag[0],'latest'
     fmt = string.Formatter()
-    fields = {name:fmt for _,name,fmt,_ in fmt.parse(cmd)}
+    fields = {name:fmt for _,name,fmt,_ in fmt.parse(script) if name}
     outputmap = {}
     for k,v in fields.iteritems():
         if '>>' in v:
-            cmd = cmd.replace('{}:{}'.format(k,v),k)
+            script = script.replace('{}:{}'.format(k,v),k)
             key = v.split('>>')[1] if v.split('>>')[1] else k
             outputmap[key] = k
     return {
         'process':{
-            'process_type':'string-interpolated-cmd',
-            'cmd':cmd
+            'process_type':'interpolated-script-cmd',
+            'script':script
         },
         'publisher':{
             'publisher_type':'frompar-pub',
@@ -75,7 +75,7 @@ def parse_data(data):
         stage = make_stage(k,step,pars,deps)
         stages.append(stage)
     sys.stdout.write(yaml.safe_dump({'stages':stages}, default_flow_style = False))
-
+    # yaml.load(yaml.safe_dump({'stages':stages}, default_flow_style = False))
 
 data = yaml.load(sys.stdin.read())
 parse_data(data)
